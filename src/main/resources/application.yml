@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: demo
+  cloud:
+    function:
+      definition: testConsumer
+    stream:
+      bindings:
+        test-out-0:
+          destination: my-topic
+        testConsumer-in-0:
+          destination: my-topic
+          group: spring-group

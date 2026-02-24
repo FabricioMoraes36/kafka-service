@@ -1,6 +1,7 @@
 package com.kafka_service.kafka_service;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,13 +10,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class KafkaController {
 
     private final KafkaProducer kafkaProducer;
+    private final FraudeService fraudeService;
 
-    public KafkaController(KafkaProducer kafkaProducer) {
+    public KafkaController(KafkaProducer kafkaProducer, FraudeService fraudeService) {
         this.kafkaProducer = kafkaProducer;
+        this.fraudeService = fraudeService;
     }
 
     @PostMapping("/publish")
     public void publish(){
         kafkaProducer.publish();
     }
+
+    @PostMapping
+    public void receiveKey(@RequestBody String key){
+        fraudeService.isFraude(key);
+    }
+
+
 }

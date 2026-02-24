@@ -28,5 +28,17 @@ services:
       - 8080:8080
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
-#    volumes:
-#      - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
+  #    volumes:
+  #      - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
+
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - 6379:6379
+
+  redis-insight:
+    container_name: redis-insight
+    image: redis/redisinsight:latest
+    ports:
+      - 5540:5540

@@ -1,46 +1,30 @@
 package com.kafka_service.kafka_service;
 
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 public class FraudeService {
 
-    private static final Integer TTL_EM_MINUTOS = 5;
+    private final RedisCacheManager cacheManager;
 
-    private final Map<String, LocalDateTime> chavesExistentes;
-
-    public FraudeService(Map<String, LocalDateTime> chavesExistentes) {
-        this.chavesExistentes = chavesExistentes;
+    public FraudeService(RedisCacheManager cacheManager) {
+        this.cacheManager = cacheManager;
     }
 
     public boolean isFraude(String chave) {
 
+        var cache = cacheManager.getCache("transacoesCache");
         LocalDateTime agora = LocalDateTime.now();
 
-        if (!chavesExistentes.containsKey(chave)) {
-            updateChavesExistentes(chavesExistentes, chave, agora);
+        if (cache.get(chave) == null) {
+            cache.put(chave, agora);
             return false;
         }
-        LocalDateTime momentoDoRegistroDaChave = chavesExistentes.get(chave);
 
-        Duration duration = Duration.between(momentoDoRegistroDaChave, agora);
-        long minutes = duration.toMinutes();
-
-        updateChavesExistentes(chavesExistentes, chave, agora);
-
-        return minutes < TTL_EM_MINUTOS;
-    }
-
-    private void updateChavesExistentes(
-            Map<String, LocalDateTime> chavesExistentes,
-            String novaChave,
-            LocalDateTime novoAgora) {
-
-        chavesExistentes.put(novaChave, novoAgora);
-
+        cacheManager.getCache("transacoesCache").put(chave, agora);
+        return true;
     }
 }

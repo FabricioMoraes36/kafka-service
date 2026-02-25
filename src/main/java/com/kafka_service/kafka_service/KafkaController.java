@@ -24,8 +24,6 @@ public class KafkaController {
 
     @PostMapping
     public void receiveKey(@RequestBody String key){
-        fraudeService.isFraude(key);
+        System.out.println(fraudeService.isFraude(key) ? "fraude" : "nao fraude");
     }
-
-
 }

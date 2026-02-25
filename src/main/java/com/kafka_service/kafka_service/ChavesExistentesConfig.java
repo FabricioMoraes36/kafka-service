@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class chavesExistentesConfig {
+public class ChavesExistentesConfig {
 
     @Bean
     public Map<String, LocalDateTime> chavesExistentes(){

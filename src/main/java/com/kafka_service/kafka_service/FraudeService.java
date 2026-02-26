@@ -14,7 +14,7 @@ public class FraudeService {
         this.cacheManager = cacheManager;
     }
 
-    public boolean isFraude(TransacaoDTO chave) {
+    public boolean isFraude(TransacaoDto chave) {
 
 
         var cache = cacheManager.getCache("transacoesCache");

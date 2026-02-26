@@ -23,7 +23,7 @@ public class KafkaController {
     }
 
     @PostMapping
-    public void receberChave(@RequestBody TransacaoDTO key){
+    public void receberChave(@RequestBody TransacaoDto key){
         System.out.println(fraudeService.isFraude(key) ? "fraude" : "nao fraude");
     }
 }

@@ -1,5 +1,6 @@
 package com.kafka_service.kafka_service;
 
+import org.springframework.cache.Cache;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 
@@ -14,18 +15,24 @@ public class FraudeService {
         this.cacheManager = cacheManager;
     }
 
-    public boolean isFraude(TransacaoDto chave) {
+    public boolean isFraude(TransacaoDto transacao) {
 
+        Cache cache = cacheManager.getCache("transacoesCache");
 
-        var cache = cacheManager.getCache("transacoesCache");
         OffsetDateTime agora = OffsetDateTime.now();
+        OffsetDateTime ultimaTransacao = cache.get(transacao.id(), OffsetDateTime.class);
 
-        if (cache.get(chave) == null) {
-            cache.put(chave, agora);
+        if (ultimaTransacao == null) {
+            cache.put(transacao.id(), agora);
             return false;
         }
 
-        cacheManager.getCache("transacoesCache").put(chave, agora);
-        return true;
+        if (agora.isBefore(ultimaTransacao.plusSeconds(10))) {
+            System.out.println("Possivel fraude para o ID: " + transacao.id());
+            return true;
+        }
+
+        cache.put(transacao.id(), agora);
+        return false;
     }
 }

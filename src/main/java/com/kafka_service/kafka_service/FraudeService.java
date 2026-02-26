@@ -3,7 +3,7 @@ package com.kafka_service.kafka_service;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Service
 public class FraudeService {
@@ -14,10 +14,11 @@ public class FraudeService {
         this.cacheManager = cacheManager;
     }
 
-    public boolean isFraude(String chave) {
+    public boolean isFraude(TransacaoDTO chave) {
+
 
         var cache = cacheManager.getCache("transacoesCache");
-        LocalDateTime agora = LocalDateTime.now();
+        OffsetDateTime agora = OffsetDateTime.now();
 
         if (cache.get(chave) == null) {
             cache.put(chave, agora);

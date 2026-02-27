@@ -12,7 +12,7 @@ public class KafkaProducer {
         this.streamBridge = streamBridge;
     }
 
-    public void publicar(){
-        streamBridge.send("test-out-0","Test222");
+    public void publicar(TransacaoDto transacaoDto){
+        streamBridge.send("test-out-0",transacaoDto);
     }
 }

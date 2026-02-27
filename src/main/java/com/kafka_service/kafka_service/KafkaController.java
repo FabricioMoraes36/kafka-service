@@ -18,12 +18,12 @@ public class KafkaController {
     }
 
     @PostMapping("/publish")
-    public void publicar(){
-        kafkaProducer.publicar();
+    public void publicar(TransacaoDto transacaoDto){
+        kafkaProducer.publicar(transacaoDto);
     }
 
     @PostMapping
-    public void receberChave(@RequestBody TransacaoDTO key){
-        System.out.println(fraudeService.isFraude(key) ? "fraude" : "nao fraude");
+    public void receberChave(@RequestBody TransacaoDto chave){
+        System.out.println(fraudeService.isFraude(chave) ? "fraude" : "nao fraude");
     }
 }

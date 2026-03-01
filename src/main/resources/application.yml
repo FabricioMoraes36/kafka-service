@@ -1,4 +1,7 @@
 spring:
+  threads:
+    virtual:
+      enabled: true
   application:
     name: demo
   cloud:
@@ -11,5 +14,16 @@ spring:
         testConsumer-in-0:
           destination: my-topic
           group: spring-group
+          consumer:
+            max-attempts: 5
+            back-off-initial-interval: 5000 # Espera 5s entre tentativas
+            back-off-max-interval: 30000    # No máximo espera 30 segundos
+            back-off-multiplier: 2.0
+
+      kafka:
+        bindings:
+          testConsumer-in-0:
+            consumer:
+              enable-dlq: true
 server:
   port: 8082

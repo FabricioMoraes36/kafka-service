@@ -1,38 +1,45 @@
 package com.kafka_service.kafka_service;
 
-import org.springframework.cache.Cache;
-import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class FraudeService {
+    private static final int TTL = 5;
 
-    private final RedisCacheManager cacheManager;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public FraudeService(RedisCacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+    public FraudeService(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
-    public boolean isFraude(TransacaoDto transacao) {
+    public boolean isFraude(TransacaoDto transacaoDto) {
+        var agora = OffsetDateTime.now();
+        var agoraMenosTtl = agora.minusMinutes(TTL);
 
-        Cache cache = cacheManager.getCache("transacoesCache");
-
-        OffsetDateTime agora = OffsetDateTime.now();
-        OffsetDateTime ultimaTransacao = cache.get(transacao.id(), OffsetDateTime.class);
-
-        if (ultimaTransacao == null) {
-            cache.put(transacao.id(), agora);
+        // Ignorar mensagens do passdo
+        if (transacaoDto.dataHora().isBefore(agoraMenosTtl)) {
             return false;
         }
 
-        if (agora.isBefore(ultimaTransacao.plusSeconds(10))) {
-            System.out.println("Possivel fraude para o ID: " + transacao.id());
+        // Validar se existe a chave no redis
+        if (redisTemplate.opsForValue().get(transacaoDto.id()) != null) {
+            atualizaCache(agoraMenosTtl, transacaoDto);
+            System.out.println("Eh fraude");
             return true;
         }
 
-        cache.put(transacao.id(), agora);
+        atualizaCache(agoraMenosTtl, transacaoDto);
+
         return false;
+    }
+
+    private void atualizaCache(OffsetDateTime agoraMenosTtl, TransacaoDto transacaoDto) {
+        var diferencaEmSegundos = ChronoUnit.SECONDS.between(agoraMenosTtl, transacaoDto.dataHora());
+        redisTemplate.opsForValue().set(transacaoDto.id(), transacaoDto.toString(), diferencaEmSegundos, TimeUnit.SECONDS);
     }
 }
